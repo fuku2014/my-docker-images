@@ -1,0 +1,14 @@
+version: '2'
+services:
+  golang_dev:
+    container_name: golang_dev
+    build:
+      context: ./Dockerfile
+      args:
+         proxy: $HTTP_PROXY
+         user:  $USER_NAME
+         pw:    $PASSWORD
+    volumes:
+      - /c/Users/$USER_NAME/mount:/home/$USER_NAME/mount
+    ports:
+      - "8080:8080"
