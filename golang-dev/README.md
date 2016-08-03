@@ -28,3 +28,10 @@ $ docker-compose build
 ```
 $ docker-compose up
 ```
+
+### Step 4. Use it! ###
+
+```
+$ docker exec -it golang_dev env TERM=xterm bash -l
+
+```

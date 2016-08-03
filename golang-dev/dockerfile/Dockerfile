@@ -27,13 +27,6 @@ USER ${user}
 RUN mkdir /home/${user}/work
 WORKDIR /home/${user}/work
 
-# rpm repository
-RUN wget http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
-RUN wget http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
-
-RUN sudo rpm -ivh rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
-RUN sudo rpm -Uvh epel-release-6-8.noarch.rpm
-
 # yum update
 RUN sudo yum -y update
 
@@ -55,7 +48,8 @@ RUN sudo yum -y install \
         gettext-devel \
         openssl-devel \
         zlib-devel \
-        perl-ExtUtils-MakeMaker
+        perl-ExtUtils-MakeMaker \
+	openssh-server
 
 # install git 2.9.0
 RUN wget https://www.kernel.org/pub/software/scm/git/git-2.9.0.tar.gz
@@ -63,7 +57,7 @@ RUN tar xzvf git-2.9.0.tar.gz && cd git-2.9.0 && sudo make prefix=/usr/local all
 
 # setup dotfiles
 RUN git clone https://github.com/fuku2014/dotfiles.git
-RUN cd dotfiles & git submodule init & git submodule update & sh dotfilesLink.sh
+RUN cd dotfiles && git submodule init && git submodule update && sh dotfilesLink.sh
 
 
 ENV GOLANG_VERSION 1.6.2
@@ -72,23 +66,29 @@ ENV GOLANG_DOWNLOAD_SHA256 e40c36ae71756198478624ed1bb4ce17597b3c19d243f3f0899bb
 
 RUN curl -fsSL "$GOLANG_DOWNLOAD_URL" -o golang.tar.gz \
     && echo "$GOLANG_DOWNLOAD_SHA256  golang.tar.gz" | sha256sum -c - \
-    && tar -C /usr/local -xzf golang.tar.gz \
+    && sudo tar -C /usr/local -xzf golang.tar.gz \
     && rm golang.tar.gz
 
 ENV GOPATH /go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 
-RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
+RUN sudo mkdir -p "$GOPATH/src" "$GOPATH/bin" && sudo chmod -R 777 "$GOPATH"
 
 # glide install
 ENV GLIDE_VERSION 0.10.2
 ENV GLIDE_DOWNLOAD_URL https://github.com/Masterminds/glide/releases/download/$GLIDE_VERSION/glide-$GLIDE_VERSION-linux-amd64.tar.gz
 RUN curl -fsSL "$GLIDE_DOWNLOAD_URL" -o glide.tar.gz \
-    && mkdir /usr/local/glide \
-    && tar -C /usr/local/glide -xzf glide.tar.gz \
-    && ln -s /usr/local/glide/linux-amd64/glide /usr/local/bin/ \
+    && sudo mkdir /usr/local/glide \
+    && sudo tar -C /usr/local/glide -xzf glide.tar.gz \
+    && sudo ln -s /usr/local/glide/linux-amd64/glide /usr/local/bin/ \
 && rm glide.tar.gz
+
+# ssh
+RUN sudo sed -ri 's/^#PermitRootLogin yes/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN sudo /etc/init.d/sshd start
+
+RUN sudo echo 'root:root' | sudo chpasswd
 
 EXPOSE 8080
 
-CMD /bin/bash
+CMD ["sudo", "/usr/sbin/sshd", "-D"]

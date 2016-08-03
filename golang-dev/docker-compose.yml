@@ -2,8 +2,8 @@ version: '2'
 services:
   golang_dev:
     container_name: golang_dev
-    build:
-      context: ./Dockerfile
+    build: 
+      context: ./dockerfile
       args:
          proxy: $HTTP_PROXY
          user:  $USER_NAME
