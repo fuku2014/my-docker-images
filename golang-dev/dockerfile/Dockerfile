@@ -31,7 +31,6 @@ WORKDIR /home/${user}/work
 RUN sudo yum -y update
 
 RUN sudo yum -y install http://ftp.riken.jp/Linux/repoforge/redhat/el6/en/x86_64/rpmforge/RPMS/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
-RUN sudo yum -y install http://mirror.fairway.ne.jp/dag/redhat/el6/en/x86_64/rpmforge/RPMS/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
 # install package
 RUN sudo yum -y install \
         tar \
@@ -63,9 +62,9 @@ RUN git clone https://github.com/fuku2014/dotfiles.git
 RUN cd dotfiles && git submodule init && git submodule update && sh dotfilesLink.sh
 
 
-ENV GOLANG_VERSION 1.7.1
+ENV GOLANG_VERSION 1.7
 ENV GOLANG_DOWNLOAD_URL https://golang.org/dl/go$GOLANG_VERSION.linux-amd64.tar.gz
-ENV GOLANG_DOWNLOAD_SHA256 e40c36ae71756198478624ed1bb4ce17597b3c19d243f3f0899bb5740d56212a
+ENV GOLANG_DOWNLOAD_SHA256 702ad90f705365227e902b42d91dd1a40e48ca7f67a2f4b2fd052aaa4295cd95
 
 RUN curl -fsSL "$GOLANG_DOWNLOAD_URL" -o golang.tar.gz \
     && echo "$GOLANG_DOWNLOAD_SHA256  golang.tar.gz" | sha256sum -c - \
@@ -76,15 +75,6 @@ ENV GOPATH /go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 
 RUN sudo mkdir -p "$GOPATH/src" "$GOPATH/bin" && sudo chmod -R 777 "$GOPATH"
-
-# glide install
-ENV GLIDE_VERSION 0.10.2
-ENV GLIDE_DOWNLOAD_URL https://github.com/Masterminds/glide/releases/download/$GLIDE_VERSION/glide-$GLIDE_VERSION-linux-amd64.tar.gz
-RUN curl -fsSL "$GLIDE_DOWNLOAD_URL" -o glide.tar.gz \
-    && sudo mkdir /usr/local/glide \
-    && sudo tar -C /usr/local/glide -xzf glide.tar.gz \
-    && sudo ln -s /usr/local/glide/linux-amd64/glide /usr/local/bin/ \
-&& rm glide.tar.gz
 
 # ssh
 RUN sudo sed -ri 's/^#PermitRootLogin yes/PermitRootLogin yes/' /etc/ssh/sshd_config
