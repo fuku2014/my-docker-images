@@ -30,9 +30,12 @@ WORKDIR /home/${user}/work
 # yum update
 RUN sudo yum -y update
 
+RUN sudo yum -y install http://ftp.riken.jp/Linux/repoforge/redhat/el6/en/x86_64/rpmforge/RPMS/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
+RUN sudo yum -y install http://mirror.fairway.ne.jp/dag/redhat/el6/en/x86_64/rpmforge/RPMS/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
 # install package
 RUN sudo yum -y install \
         tar \
+	tig \
         gcc-c++ \
         g++ \
         gcc \
@@ -60,7 +63,7 @@ RUN git clone https://github.com/fuku2014/dotfiles.git
 RUN cd dotfiles && git submodule init && git submodule update && sh dotfilesLink.sh
 
 
-ENV GOLANG_VERSION 1.6.2
+ENV GOLANG_VERSION 1.7.1
 ENV GOLANG_DOWNLOAD_URL https://golang.org/dl/go$GOLANG_VERSION.linux-amd64.tar.gz
 ENV GOLANG_DOWNLOAD_SHA256 e40c36ae71756198478624ed1bb4ce17597b3c19d243f3f0899bb5740d56212a
 
